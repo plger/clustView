@@ -176,6 +176,7 @@ clustView.server <- function( seurat,
             tmp <- t(sapply( mrks$gene, FUN = function(x) {
                 x <- strsplit(as.character(x), ".", fixed = T)[[1]]
                 if(length(x)>2) x <- c(x[1],paste(x[2:length(x)],collapse="."))
+                x
             }))
             mrks$ensembl <- tmp[,1]
             mrks$symbol <- tmp[,2]
