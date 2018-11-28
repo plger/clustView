@@ -53,6 +53,7 @@ clustView.server <- function( seurat,
             })
         })
 
+        # update resolution select
         observe({
             req(input$prefix)
             ch <- sort(as.character(allres[[input$prefix]]))
@@ -65,6 +66,7 @@ clustView.server <- function( seurat,
             sera$metadata[[paste0(input$prefix, input$resolution)]]
         })
         
+        # update cluster select
         observeEvent(input$resolution, {
             ch <- sort(as.character(unique(idents())))
             updateSelectInput(session, 'cluster', choices = ch)
@@ -154,20 +156,26 @@ clustView.server <- function( seurat,
             }
         })
         
-        for(x in gocats){
-            output[[paste0("go_",x)]] <- renderDT({
-                go <- sera$anno[[input$prefix]]$go[[x]][[input$resolution]][[input$cluster]]
-                if(is.null(go)) return(NULL)
-                datatable(go)
-            })
-        }
-
+        output$go_BP <- renderDT({
+            datatable(sera$anno[[input$prefix]]$go[["BP"]][[input$resolution]][[input$cluster]])
+        })
+        output$go_CC <- renderDT({
+            datatable(sera$anno[[input$prefix]]$go[["CC"]][[input$resolution]][[input$cluster]])
+        })
+        output$go_MF <- renderDT({
+            datatable(sera$anno[[input$prefix]]$go[["MF"]][[input$resolution]][[input$cluster]])
+        })
+        output$go_go <- renderDT({
+            datatable(sera$anno[[input$prefix]]$go[["go"]][[input$resolution]][[input$cluster]])
+        })
+        
         output$markers <- renderTable({
             mrks <- sera$anno[[input$prefix]]$markers[[input$resolution]]
-            mrks <- mrks[which(mrks$cluster == input$cluster),,drop=F]
+            mrks <- mrks[which(mrks$cluster == as.character(input$cluster)),,drop=F]
             if(nrow(mrks) == 0) return(NULL)
             tmp <- t(sapply( mrks$gene, FUN = function(x) {
-                strsplit(as.character(x), ".", fixed = T)[[1]]
+                x <- strsplit(as.character(x), ".", fixed = T)[[1]]
+                if(length(x)>2) x <- c(x[1],paste(x[2:length(x)],collapse="."))
             }))
             mrks$ensembl <- tmp[,1]
             mrks$symbol <- tmp[,2]
@@ -186,19 +194,20 @@ clustView.server <- function( seurat,
             return(NULL)
         })
         observeEvent(input$save_newname, {
+            oldname <- as.character(input$cluster)
             newname <- input$newname
             lvls <- levels(idents())
             if( gsub(" ","",newname) != "" &&
                 !(newname %in% lvls) ){
                 var <- paste0(input$prefix, input$resolution)
-                lvls[which(lvls==input$cluster)] <- newname
+                lvls[which(lvls==oldname)] <- newname
                 levels(sera$metadata[[var]]) <<- lvls
-                nn <- names(sera$anno[[input$prefix]]$markers)
-                nn[which(nn==input$cluster)] <- newname
-                names(sera$anno[[input$prefix]]$markers) <<- nn
+                nn <- levels(sera$anno[[input$prefix]]$markers[[input$resolution]]$cluster)
+                nn[which(nn==oldname)] <- newname
+                levels(sera$anno[[input$prefix]]$markers[[input$resolution]]$cluster) <<- nn
                 for(x in gocats){
                     nn <- names(sera$anno[[input$prefix]]$go[[gocats]][[input$resolution]])
-                    nn[which(nn==input$cluster)] <- newname
+                    nn[which(nn==oldname)] <- newname
                     names(sera$anno[[input$prefix]]$go[[gocats]][[input$resolution]]) <<- nn
                 }
                 updateTextInput(session, 'newname', value='')
