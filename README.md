@@ -5,15 +5,21 @@ shiny viewer for browsing and annotating clusters
 
 Required R packages for the app:
 ```{r}
-c( "Seurat", "shiny","shinydashboard","shinycssloaders",
-   "DT", "data.table", "ggplot2", "cowplot" )
+BiocManager::install(c( "Seurat", "shiny","shinydashboard","shinycssloaders",
+   "DT", "data.table", "ggplot2", "cowplot", "AnnotationDbi", "GO.db" ) )
 ```
 
-Package `clustree` is also required if `enableClustree=TRUE`.
+Package `clustree` is also required:
+```{r}
+devtools::install_github("lazappi/clustree", dependencies = TRUE)
+```
 
-I tried to make it backward-compatible with Seurat v2, but right now it's only tested with V3.
+In addition, preparing the cluster annotation will require the appropriate `org.Xx.eg.db` for your species, e.g. `org.Hs.eg.db`.
 
-Required packages for preparing the cluster annotation: `AnnotationDbi`, `GO.db`, and the appropriate `org.Xx.eg.db` for your species.
+I tried to make it backward-compatible with Seurat v2, but right now it's only tested with V3. To install Seurat V3:
+```{r}
+devtools::install_github(repo = 'satijalab/seurat', ref = 'release/3.0')
+```
 
 # Usage
 
@@ -22,24 +28,25 @@ Required packages for preparing the cluster annotation: `AnnotationDbi`, `GO.db`
 Assuming a seurat object named `se`, first get all markers for each cluster/resolution. For example, in v3 (assuming the default prefix after integration):
 
 ```{r}
+library(clustView)
+
 # get all computed resolutions:
 cn <- names(seurat@meta.data)
 resolutions <- as.numeric(gsub("integrated_snn_res.","",cn[grep("^integrated_snn_res",cn)],fixed=T))
 
-# get markers for each clustering:
+# get markers for each cluster/resolution:
 markers <- list()
 for(r in resolutions){
   markers[[as.character(r)]] <- FindAllMarkers( 
-	  	object = se,
-	  	only.pos = FALSE, 
-	    min.pct = 0.25, 
-	    resolution = r,
-	    logfc.threshold = 0.5,
-	    test.use = "wilcox",
-	    max.cells.per.ident = 300 )
+	object = se,
+	only.pos = FALSE, 
+	min.pct = 0.25, 
+	resolution = r,
+	logfc.threshold = 0.5,
+	test.use = "wilcox",
+	max.cells.per.ident = 300 )
 }
 
-source("path/to/plg.GO.R")
 se <- prepSeuratForClustView( se,
                               markerslist=markers,
                               species="Hs",
@@ -51,9 +58,5 @@ se <- prepSeuratForClustView( se,
 Assuming a seurat object named `se`:
 
 ```{r}
-source("path/to/clustView.ui.R")
-source("path/to/clustView.server.R")
 clustView(se)
 ```
-
-You can use `clustView(se, enableClustree=F)` to disable the clustering tree (saves loading time and does not require the `clustree` package.) 

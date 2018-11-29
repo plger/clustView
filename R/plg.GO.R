@@ -102,6 +102,17 @@ ORA <- function(set1, sets, universe, topN=10){
 }
 
 
+#' annotateAll
+#'
+#' @param markerslist A list of markers table (one table per resolution), 
+#' as produced by `Seurat::FindAllMarkers`
+#' @param go An optional named list of genesets. If NULL, will be fetched 
+#' using `getAllGOlists`.
+#' @param topN The top number of terms to report (default 10)
+#' @param ... Passed to `getAllGOlists` if `go=NULL`
+#'
+#' @return A nested list of data.frames.
+#' @export
 annotateAll <- function(markerslist, go=NULL, topN=10, ...){
   gall <- as.character(unlist(lapply(markerslist, FUN=function(x) x$gene)))
   gall <- unique(.getEnsemblFromConcat(gall))
@@ -115,7 +126,7 @@ annotateAll <- function(markerslist, go=NULL, topN=10, ...){
 #'
 #' @param seurat An object of class `Seurat`
 #' @param markerslist A nested list of markers' tables (as produced by 
-#' `Seurat::FindAllMarkers()`) for each method and resolution
+#' `Seurat::FindAllMarkers()`) for each method and resolution.
 #' @param res_prefixes The list of clustering prefixes to use from 
 #' `seurat@meta.data` (default all detected)
 #' @param species Two-letter species code (corresponding to the 
@@ -127,7 +138,7 @@ annotateAll <- function(markerslist, go=NULL, topN=10, ...){
 #' `seurat@misc$clusterAnnotation`
 #' @export
 prepSeuratForClustView <- function( seurat,
-                                    markerslist,
+                                    markerslist=NULL,
                                     res_prefixes=NULL,
                                     species="Mm",
                                     ontologies=c("BP", "CC")
