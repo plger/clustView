@@ -1,7 +1,18 @@
 # clustView
-shiny viewer for browsing and annotating clusters
+A shiny app for browsing and annotating scRNAseq clusters.
 
-# Requirements
+**This package is still experimental!**
+
+<br/><br/>
+
+### Next on the to-do list:
+- generalization to `SingleCellExperiment` objects
+- functionality to merge clusters
+- importing cell type predictions based on references
+
+<br/><br/>
+
+## Requirements
 
 Required R packages for the app:
 ```{r}
@@ -21,9 +32,12 @@ I tried to make it backward-compatible with Seurat v2, but right now it's only t
 devtools::install_github(repo = 'satijalab/seurat', ref = 'release/3.0')
 ```
 
-# Usage
+<br/><br/>
 
-## Prepare cluster annotation:
+
+## Usage
+
+### Preparing cluster annotation:
 
 Assuming a seurat object named `se`, first get all markers for each cluster/resolution. For example, in v3 (assuming the default prefix after integration):
 
@@ -53,7 +67,7 @@ se <- prepSeuratForClustView( se,
                               ontologies=c("BP", "CC") )
 ```
 
-## Launching the app:
+### Launching the app:
 
 Assuming a seurat object named `se`:
 
