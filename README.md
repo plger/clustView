@@ -12,7 +12,7 @@ A shiny app for browsing and annotating scRNAseq clusters.
 
 <br/><br/>
 
-## Requirements
+## Installation
 
 Required R packages for the app:
 ```{r}
@@ -30,6 +30,11 @@ In addition, preparing the cluster annotation will require the appropriate `org.
 I tried to make it backward-compatible with Seurat v2, but right now it's only tested with V3. To install Seurat V3:
 ```{r}
 devtools::install_github(repo = 'satijalab/seurat', ref = 'release/3.0')
+```
+
+To install `ClustView`:
+```{r}
+devtools::install_github("plger/clustView")
 ```
 
 <br/><br/>
