@@ -37,13 +37,13 @@ getAllGOlists <- function( species = "Mm",
   })))
   allcats <- unique(allcats[!is.na(allcats)])
   if(!is.null(categories)) allcats <- intersect(categories, allcats)
-  x <- mget(allcats, get(paste0(db,"GO2ALLEGS")), ifnotfound=NA)
+  x <- AnnotationDbi::mget(allcats, get(paste0(db,"GO2ALLEGS")), ifnotfound=NA)
   x <- x[which(sapply(x,FUN=function(x){ !all(is.na(x)) }))]
   db2id <- paste0(db, switch(gene.id.type,
                              symbol="SYMBOL",
                              ensembl="ENSEMBL",
                              stop("unknown gene id type")))
-  x <- lapply(x, db=db2id, FUN=function(x,db){ unique(as.character(unlist(mget(as.character(x), get(db))))) })
+  x <- lapply(x, db=db2id, FUN=function(x,db){ unique(as.character(unlist(AnnotationDbi::mget(as.character(x), get(db))))) })
   if(!is.null(genes)){
     x <- lapply(x, y=genes, FUN=intersect)
   }
